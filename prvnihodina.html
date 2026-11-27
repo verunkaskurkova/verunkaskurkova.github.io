@@ -1,1 +1,1166 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vyber si svou postavu z Ledového království</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cinzel pro královské nadpisy a Montserrat pro čistý text -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --ice-blue: #a5f3fc;
+            --royal-blue: #0f172a;
+            --frost-glow: rgba(165, 243, 252, 0.45);
+        }
 
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: radial-gradient(ellipse at top, #1e3a8a 0%, #0f172a 55%, #060b19 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        h1, h2, h3, .font-royal {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Třpytivý nadpis */
+        .shimmer-text {
+            background: linear-gradient(90deg, #e0f2fe 0%, #7dd3fc 25%, #ffffff 50%, #38bdf8 75%, #e0f2fe 100%);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shimmer 4.5s linear infinite;
+            text-shadow: 0 0 30px rgba(125, 211, 252, 0.35);
+        }
+
+        @keyframes shimmer {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        /* Skleněný ledový efekt (Glassmorphism) */
+        .frost-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.11) 0%, rgba(186, 230, 253, 0.04) 100%);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(186, 230, 253, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(2, 6, 23, 0.5), inset 0 0 18px rgba(186, 230, 253, 0.08);
+            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .frost-card:hover {
+            transform: translateY(-8px) scale(1.015);
+            border-color: rgba(125, 211, 252, 0.75);
+            box-shadow: 0 18px 45px -5px rgba(56, 189, 248, 0.35), inset 0 0 25px rgba(186, 230, 253, 0.22);
+        }
+
+        .frost-card.selected-hero-card {
+            border: 2px solid #38bdf8;
+            box-shadow: 0 0 35px rgba(56, 189, 248, 0.6), inset 0 0 25px rgba(125, 211, 252, 0.3);
+        }
+
+        /* Kouzelné tlačítko */
+        .magic-btn {
+            background: linear-gradient(135deg, #0284c7 0%, #38bdf8 50%, #0369a1 100%);
+            background-size: 200% auto;
+            box-shadow: 0 4px 18px rgba(56, 189, 248, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .magic-btn:hover {
+            background-position: right center;
+            box-shadow: 0 6px 25px rgba(125, 211, 252, 0.7);
+            transform: translateY(-2px);
+        }
+
+        .magic-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Animace levitace pro portréty */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-7px); }
+        }
+
+        .animate-float {
+            animation: floatSlow 4s ease-in-out infinite;
+        }
+
+        /* Překryvný efekt námrazy na okrajích obrazovky (speciální schopnost) */
+        #frost-overlay {
+            pointer-events: none;
+            position: fixed;
+            inset: 0;
+            z-index: 45;
+            opacity: 0;
+            transition: opacity 0.9s ease;
+            box-shadow: inset 0 0 90px 35px rgba(186, 230, 253, 0.85), inset 0 0 25px 10px #ffffff;
+            background: radial-gradient(circle at center, transparent 58%, rgba(125, 211, 252, 0.28) 100%);
+        }
+
+        #frost-overlay.active {
+            opacity: 1;
+        }
+
+        /* Sluneční paprsky pro Olafa / léto */
+        #sun-overlay {
+            pointer-events: none;
+            position: fixed;
+            inset: 0;
+            z-index: 45;
+            opacity: 0;
+            transition: opacity 0.9s ease;
+            background: radial-gradient(circle at top right, rgba(253, 224, 71, 0.42) 0%, rgba(251, 146, 60, 0.15) 45%, transparent 75%);
+        }
+
+        #sun-overlay.active {
+            opacity: 1;
+        }
+
+        /* Ohnivá záře pro Bruniho */
+        #fire-overlay {
+            pointer-events: none;
+            position: fixed;
+            inset: 0;
+            z-index: 45;
+            opacity: 0;
+            transition: opacity 0.9s ease;
+            box-shadow: inset 0 0 85px 25px rgba(249, 115, 22, 0.65);
+            background: radial-gradient(circle at bottom, rgba(239, 68, 68, 0.25) 0%, transparent 70%);
+        }
+
+        #fire-overlay.active {
+            opacity: 1;
+        }
+
+        /* Vlastní posuvník */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0284c7;
+            border-radius: 9999px;
+        }
+
+        /* Animace zobrazení sekcí */
+        .fade-in-up {
+            animation: fadeInUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-sky-400 selection:text-slate-950">
+
+    <!-- Plátno pro padající sněhové vločky, kurzorovou stopu a magické výbuchy částic -->
+    <canvas id="snow-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+    <canvas id="fx-canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+    <!-- Speciální efekty prostředí při aktivaci schopnosti -->
+    <div id="frost-overlay"></div>
+    <div id="sun-overlay"></div>
+    <div id="fire-overlay"></div>
+
+    <!-- Hlavní kontejner aplikace -->
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+
+        <!-- Horní lišta: Ovládání zvuku & Rychlý stav -->
+        <header class="flex flex-col items-center text-center mb-8 sm:mb-12 relative">
+            <div class="w-full flex justify-between items-center mb-4">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-950/60 border border-sky-400/30 text-xs sm:text-sm text-sky-200">
+                    <span>❄️</span>
+                    <span>Království Arendelle & Začarovaný les</span>
+                </div>
+
+                <!-- Tlačítko zvuku -->
+                <button id="sound-toggle" type="button" class="inline-flex items-center gap-2 px-4 py-2 rounded-full frost-card text-xs sm:text-sm font-medium text-sky-100 hover:text-white cursor-pointer" title="Zapnout nebo vypnout kouzelné zvuky">
+                    <span id="sound-icon">🔊</span>
+                    <span id="sound-label">Zvuk zapnut</span>
+                </button>
+            </div>
+
+            <!-- Hlavní titulek -->
+            <div class="max-w-3xl mx-auto">
+                <div class="text-sky-300 text-2xl sm:text-3xl mb-2 tracking-widest">✦ ❄ ✦</div>
+                <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-wide shimmer-text leading-tight mb-4">
+                    Vyber si svou postavu z Ledového království
+                </h1>
+                <p class="text-sky-100/80 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto leading-relaxed">
+                    Objev v sobě sílu ledu, odvahy, přátelství nebo přírodních duchů. Prozkoumej hrdiny Arendelle nebo zjisti v magickém kvízu, která postava je tvou spřízněnou duší.
+                </p>
+            </div>
+
+            <!-- Přepínač režimů (Taby) -->
+            <nav class="mt-8 p-1.5 rounded-2xl bg-slate-900/75 border border-sky-400/30 backdrop-blur-md inline-flex flex-wrap justify-center gap-2 shadow-xl">
+                <button id="tab-gallery" type="button" class="px-5 sm:px-7 py-3 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 flex items-center gap-2 bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/30 cursor-pointer">
+                    <span>👑</span>
+                    <span>Prozkoumat postavy</span>
+                </button>
+                <button id="tab-quiz" type="button" class="px-5 sm:px-7 py-3 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 flex items-center gap-2 text-sky-200 hover:text-white hover:bg-white/5 cursor-pointer">
+                    <span>🔮</span>
+                    <span>Která postava jsi?</span>
+                </button>
+            </nav>
+        </header>
+
+        <!-- Banner: Tvůj vybraný hrdina (zobrazí se po výběru) -->
+        <section id="selected-hero-banner" class="hidden mb-10 fade-in-up">
+            <div class="frost-card rounded-3xl p-6 sm:p-8 border-2 border-sky-300/60 relative overflow-hidden">
+                <!-- Dekorativní záře v pozadí -->
+                <div id="banner-glow" class="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-sky-400/20 blur-3xl pointer-events-none"></div>
+                
+                <div class="flex flex-col lg:flex-row items-center justify-between gap-6 relative z-10">
+                    <div class="flex flex-col sm:flex-row items-center text-center sm:text-left gap-5">
+                        <div id="banner-avatar" class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-slate-900/70 border border-sky-300/50 flex items-center justify-center p-2 shadow-inner shrink-0 animate-float">
+                            <!-- SVG avatar hrdiny -->
+                        </div>
+                        <div>
+                            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-400/20 border border-sky-300/40 text-sky-200 text-xs font-semibold uppercase tracking-wider mb-2">
+                                <span>✨ Tvůj vybraný hrdina</span>
+                            </div>
+                            <h2 id="banner-name" class="text-2xl sm:text-3xl font-bold text-white mb-1">Elsa</h2>
+                            <p id="banner-title" class="text-sky-300 font-medium text-sm sm:text-base mb-2">Sněhová královna & Pátý duch</p>
+                            <p id="banner-quote" class="text-sky-100/85 italic text-sm max-w-xl">„Led je mou součástí, už se ho nikdy nebudu bát.“</p>
+                        </div>
+                    </div>
+
+                    <!-- Akční tlačítko speciální schopnosti -->
+                    <div class="flex flex-col sm:flex-row lg:flex-col items-center gap-3 shrink-0 w-full sm:w-auto">
+                        <button id="special-power-btn" type="button" class="w-full sm:w-auto magic-btn px-6 py-3.5 rounded-2xl font-bold text-white text-sm sm:text-base flex items-center justify-center gap-2.5 cursor-pointer">
+                            <span id="power-icon" class="text-xl">❄️</span>
+                            <span id="power-btn-text">Vytvořit ledový palác</span>
+                        </button>
+                        <span id="power-feedback" class="text-xs text-sky-200/90 text-center min-h-[1.25rem]">Klikni a sešli kouzlo!</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- REŽIM 1: GALERIE POSTAV -->
+        <main id="view-gallery" class="fade-in-up">
+            <!-- Filtr podle živlu / zaměření -->
+            <div class="flex flex-wrap items-center justify-center gap-2 mb-8">
+                <button type="button" data-filter="all" class="filter-btn active px-4 py-2 rounded-full text-xs sm:text-sm font-semibold bg-sky-400/25 border border-sky-300 text-white transition cursor-pointer">
+                    ✨ Všichni hrdinové (7)
+                </button>
+                <button type="button" data-filter="royal" class="filter-btn px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-slate-900/50 border border-sky-400/20 text-sky-200 hover:border-sky-300/60 transition cursor-pointer">
+                    👑 Královský dvůr
+                </button>
+                <button type="button" data-filter="spirits" class="filter-btn px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-slate-900/50 border border-sky-400/20 text-sky-200 hover:border-sky-300/60 transition cursor-pointer">
+                    🌀 Duchové přírody
+                </button>
+                <button type="button" data-filter="companions" class="filter-btn px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-slate-900/50 border border-sky-400/20 text-sky-200 hover:border-sky-300/60 transition cursor-pointer">
+                    🦌 Věrní přátelé
+                </button>
+            </div>
+
+            <!-- Mřížka karet postav -->
+            <div id="characters-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                <!-- Karty jsou generovány dynamicky přes JS -->
+            </div>
+        </main>
+
+        <!-- REŽIM 2: OSOBNOSTNÍ KVÍZ -->
+        <section id="view-quiz" class="hidden max-w-3xl mx-auto fade-in-up">
+            <div class="frost-card rounded-3xl p-6 sm:p-10 border border-sky-300/40">
+                <!-- Kontejner aktivní otázky -->
+                <div id="quiz-question-container">
+                    <div class="flex items-center justify-between mb-6">
+                        <span id="quiz-step-badge" class="px-3.5 py-1 rounded-full bg-sky-500/20 border border-sky-400/40 text-sky-200 text-xs sm:text-sm font-semibold">
+                            Otázka 1 z 5
+                        </span>
+                        <div class="w-32 sm:w-48 h-2.5 bg-slate-900/80 rounded-full overflow-hidden border border-sky-400/20">
+                            <div id="quiz-progress-bar" class="h-full bg-gradient-to-r from-sky-400 to-cyan-200 transition-all duration-500" style="width: 20%"></div>
+                        </div>
+                    </div>
+
+                    <h2 id="quiz-question-text" class="text-xl sm:text-2xl font-bold text-white mb-6 leading-snug">
+                        Jaké počasí ti dokáže nejvíce zvednout náladu?
+                    </h2>
+
+                    <div id="quiz-options" class="space-y-3.5">
+                        <!-- Možnosti odpovědí se generují dynamicky -->
+                    </div>
+                </div>
+
+                <!-- Kontejner výsledku kvízu -->
+                <div id="quiz-result-container" class="hidden text-center">
+                    <div class="inline-block px-4 py-1.5 rounded-full bg-sky-400/20 border border-sky-300/50 text-sky-200 text-xs sm:text-sm font-semibold uppercase tracking-widest mb-4">
+                        ✨ Magický verdikt krystalů ✨
+                    </div>
+                    <h2 class="text-2xl sm:text-4xl font-black shimmer-text mb-2">
+                        Tvá spřízněná duše je:
+                    </h2>
+                    <div id="quiz-result-avatar" class="w-36 h-36 mx-auto my-6 rounded-3xl bg-slate-900/80 border-2 border-sky-300/60 p-3 shadow-2xl animate-float flex items-center justify-center">
+                        <!-- SVG vítězné postavy -->
+                    </div>
+                    <h3 id="quiz-result-name" class="text-3xl font-bold text-white mb-1">Elsa</h3>
+                    <p id="quiz-result-role" class="text-sky-300 font-medium mb-4">Sněhová královna</p>
+                    <p id="quiz-result-desc" class="text-sky-100/90 text-sm sm:text-base max-w-xl mx-auto leading-relaxed mb-8">
+                        Popis výsledku...
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <button id="quiz-claim-btn" type="button" class="w-full sm:w-auto magic-btn px-7 py-3.5 rounded-2xl font-bold text-white text-sm sm:text-base flex items-center justify-center gap-2 cursor-pointer">
+                            <span>👑</span>
+                            <span>Vybrat jako svého hrdinu</span>
+                        </button>
+                        <button id="quiz-restart-btn" type="button" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl font-semibold text-sky-200 bg-slate-900/70 border border-sky-400/30 hover:bg-slate-800 hover:text-white transition text-sm sm:text-base cursor-pointer">
+                            🔄 Zkusit kvíz znovu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Patička -->
+        <footer class="mt-16 pt-6 border-t border-sky-400/15 text-center text-sky-200/60 text-xs sm:text-sm">
+            <p>❄️ Vytvořeno s kouzlem zimního království • Pohybuj myší nebo prstem pro sněhovou stopu ❄️</p>
+        </footer>
+    </div>
+
+    <script>
+        /**
+         * DATABÁZE POSTAV Z LEDOVÉHO KRÁLOVSTVÍ
+         * Obsahuje vlastní vektorové SVG portréty, statistiky, citáty a speciální magické schopnosti.
+         */
+        const CHARACTERS = [
+            {
+                id: 'elsa',
+                name: 'Elsa',
+                role: 'Sněhová královna & Pátý duch',
+                category: 'royal',
+                element: 'Led a sníh',
+                elementIcon: '❄️',
+                accentColor: '#38bdf8',
+                quote: '„Najednou vím, co mám dělat. Strach už mě nikdy nesmí svázat.“',
+                description: 'Královna s darem ovládat led a sníh. Navenek vznešená a klidná, uvnitř hluboce milující svou sestru a připravená chránit celý svět.',
+                stats: { magie: 100, odvaha: 90, humor: 60, sila: 85 },
+                powerName: 'Vytvořit ledový palác',
+                powerIcon: '🏰',
+                powerEffect: 'frost',
+                powerMessage: 'Ledové krystaly pokryly okraje tvé obrazovky! ✨',
+                svg: `
+                    <svg viewBox="0 0 120 120" class="w-full h-full">
+                        <defs>
+                            <radialGradient id="elsaBg" cx="50%" cy="40%" r="60%">
+                                <stop offset="0%" stop-color="#bae6fd" stop-opacity="0.45"/>
+                                <stop offset="100%" stop-color="#0284c7" stop-opacity="0.1"/>
+                            </radialGradient>
+                            <linearGradient id="elsaHair" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#ffffff"/>
+                                <stop offset="100%" stop-color="#dbeafe"/>
+                            </linearGradient>
+                            <linearGradient id="elsaDress" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#7dd3fc"/>
+                                <stop offset="100%" stop-color="#0284c7"/>
+                            </linearGradient>
+                        </defs>
+                        <circle cx="60" cy="60" r="54" fill="url(#elsaBg)" stroke="#7dd3fc" stroke-width="1.5" stroke-dasharray="4 3"/>
+                        <!-- Vločky kolem -->
+                        <path d="M24 32 L24 42 M19 37 L29 37 M21 34 L27 40 M27 34 L21 40" stroke="#e0f2fe" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M96 28 L96 38 M91 33 L101 33 M93 30 L99 36 M99 30 L93 36" stroke="#bae6fd" stroke-width="1.5" stroke-linecap="round"/>
+                        <!-- Šaty a plášť -->
+                        <path d="M32 108 C35 82, 85 82, 88 108 Z" fill="url(#elsaDress)"/>
+                        <path d="M44 84 L60 96 L76 84" fill="none" stroke="#e0f2fe" stroke-width="2"/>
+                        <!-- Cop přes rameno -->
+                        <path d="M42 48 C30 62, 30 82, 38 102 C44 96, 46 82, 46 68" fill="url(#elsaHair)"/>
+                        <!-- Hlava a vlasy -->
+                        <ellipse cx="60" cy="54" rx="18" ry="21" fill="#fde6d8"/>
+                        <path d="M40 52 C38 30, 82 28, 80 54 C76 42, 62 38, 48 44 Z" fill="url(#elsaHair)"/>
+                        <!-- Ledová korunka -->
+                        <polygon points="60,22 55,33 65,33" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1"/>
+                        <polygon points="50,27 47,35 54,34" fill="#bae6fd"/>
+                        <polygon points="70,27 66,34 73,35" fill="#bae6fd"/>
+                        <!-- Oči a úsměv -->
+                        <circle cx="53" cy="54" r="2.3" fill="#0284c7"/>
+                        <circle cx="67" cy="54" r="2.3" fill="#0284c7"/>
+                        <path d="M55 64 Q60 68 65 64" fill="none" stroke="#be185d" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>`
+            },
+            {
+                id: 'anna',
+                name: 'Anna',
+                role: 'Královna Arendelle & Srdce rodiny',
+                category: 'royal',
+                element: 'Odvaha a láska',
+                elementIcon: '💖',
+                accentColor: '#f472b6',
+                quote: '„Někteří lidé stojí za to, aby se pro ně člověk rozpustil.“',
+                description: 'Neohrožená, optimistická a nesmírně oddaná. I bez magických schopností dokáže svými činy a čistým srdcem zachránit celé království.',
+                stats: { magie: 25, odvaha: 100, humor: 85, sila: 80 },
+                powerName: 'Odvážný skok & Pouto lásky',
+                powerIcon: '💖',
+                powerEffect: 'hearts',
+                powerMessage: 'Vlna tepla a odvahy rozzářila celé království! 💕',
+                svg: `
+                    <svg viewBox="0 0 120 120" class="w-full h-full">
+                        <defs>
+                            <radialGradient id="annaBg" cx="50%" cy="40%" r="60%">
+                                <stop offset="0%" stop-color="#f472b6" stop-opacity="0.35"/>
+                                <stop offset="100%" stop-color="#4c1d95" stop-opacity="0.1"/>
+                            </radialGradient>
+                        </defs>
+                        <circle cx="60" cy="60" r="54" fill="url(#annaBg)" stroke="#f472b6" stroke-width="1.5"/>
+                        <!-- Plášť -->
+                        <path d="M28 108 C32 80, 88 80, 92 108 Z" fill="#9d174d"/>
+                        <path d="M40 108 C42 84, 78 84, 80 108 Z" fill="#1e293b"/>
+                        <path d="M48 86 L60 98 L72 86" fill="#38bdf8"/>
+                        <!-- Copy -->
+                        <path d="M42 62 L33 94 L42 96 L47 68 Z" fill="#b45309"/>
+                        <path d="M78 62 L87 94 L78 96 L73 68 Z" fill="#b45309"/>
+                        <!-- Hlava a vlasy se světlým pramínkem -->
+                        <ellipse cx="60" cy="54" rx="18" ry="21" fill="#fde6d8"/>
+                        <path d="M41 53 C39 30, 81 30, 79 53 C73 41, 47 41, 41 53 Z" fill="#92400e"/>
+                        <path d="M65 36 C68 42, 70 48, 69 53" fill="none" stroke="#fef3c7" stroke-width="2.5" stroke-linecap="round"/>
+                        <!-- Pihy a oči -->
+                        <circle cx="53" cy="54" r="2.3" fill="#0d9488"/>
+                        <circle cx="67" cy="54" r="2.3" fill="#0d9488"/>
+                        <circle cx="50" cy="59" r="0.9" fill="#d97706"/>
+                        <circle cx="70" cy="59" r="0.9" fill="#d97706"/>
+                        <path d="M54 63 Q60 69 66 63" fill="none" stroke="#be123c" stroke-width="2" stroke-linecap="round"/>
+                    </svg>`
+            },
+            {
+                id: 'olaf',
+                name: 'Olaf',
+                role: 'Milovník vřelých objetí a léta',
+                category: 'companions',
+                element: 'Radost a léto',
+                elementIcon: '☀️',
+                accentColor: '#facc15',
+                quote: '„Ahoj! Já jsem Olaf a mám rád vřelá objetí!“',
+                description: 'Kouzelný sněhulák stvořený Elsinou magií. Je zvídavý, filozofický, nekonečně veselý a sní o tom, jaké to je opalovat se na letní pláži.',
+                stats: { magie: 60, odvaha: 75, humor: 100, sila: 40 },
+                powerName: 'Vřelé objetí a letní vánek',
+                powerIcon: '☀️',
+                powerEffect: 'sun',
+                powerMessage: 'Sluneční paprsky a vlastní sněhový mráček jen pro tebe! ☀️❄️',
+                svg: `
+                    <svg viewBox="0 0 120 120" class="w-full h-full">
+                        <circle cx="60" cy="60" r="54" fill="rgba(250, 204, 21, 0.15)" stroke="#fde047" stroke-width="1.5"/>
+                        <!-- Větvičky na hlavě -->
+                        <path d="M56 26 L52 14 M60 25 L60 12 M64 26 L69 15" stroke="#78350f" stroke-width="2.2" stroke-linecap="round"/>
+                        <!-- Tělo -->
+                        <ellipse cx="60" cy="96" rx="22" ry="16" fill="#ffffff"/>
+                        <ellipse cx="60" cy="74" rx="16" ry="13" fill="#f8fafc"/>
+                        <!-- Knoflíky -->
+                        <circle cx="60" cy="74" r="2.5" fill="#1e293b"/>
+                        <circle cx="60" cy="92" r="3" fill="#1e293b"/>
+                        <circle cx="60" cy="102" r="3" fill="#1e293b"/>
+                        <!-- Ruce z větví -->
+                        <path d="M44 74 L24 62 M24 62 L19 57 M24 62 L18 65" stroke="#78350f" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M76 74 L96 62 M96 62 L101 57 M96 62 L102 65" stroke="#78350f" stroke-width="2.5" stroke-linecap="round"/>
+                        <!-- Hlava -->
+                        <ellipse cx="60" cy="46" rx="15" ry="19" fill="#ffffff"/>
+                        <!-- Oči a obočí -->
+                        <path d="M51 35 Q54 33 57 35" stroke="#78350f" stroke-width="1.5" fill="none"/>
+                        <path d="M63 35 Q66 33 69 35" stroke="#78350f" stroke-width="1.5" fill="none"/>
+                        <circle cx="54" cy="41" r="3" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8"/>
+                        <circle cx="66" cy="41" r="3" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8"/>
+                        <circle cx="54.5" cy="41" r="1.5" fill="#0f172a"/>
+                        <circle cx="65.5" cy="41" r="1.5" fill="#0f172a"/>
+                        <!-- Mrkvový nos -->
+                        <polygon points="60,45 60,50 77,48" fill="#f97316"/>
+                        <!-- Široký úsměv a zoubek -->
+                        <path d="M50 53 Q60 63 70 53 Z" fill="#1e293b"/>
+                        <rect x="57" y="53" width="6" height="4" rx="1" fill="#ffffff"/>
+                    </svg>`
+            },
+            {
+                id: 'kristoff',
+                name: 'Kristoff',
+                role: 'Ledový horal & Královský choť',
+                category: 'royal',
+                element: 'Příroda a spolehlivost',
+                elementIcon: '🪓',
+                accentColor: '#34d399',
+                quote: '„Sob je lepší než lidi... ale pro tebe udělám výjimku.“',
+                description: 'Drsný, ale dobrosrdečný sběrač ledu vychovaný troly. Vždy stojí nohama pevně na zemi a nikdy nenechá své blízké ve štychu.',
+                stats: { magie: 15, odvaha: 90, humor: 75, sila: 95 },
+                powerName: 'Ledová sekera & Síla hor',
+                powerIcon: '🏔️',
+                powerEffect: 'frost',
+                powerMessage: 'Zatřásl jsi horami a rozdrtil ledové bariéry! 🏔️',
+                svg: `
+                    <svg viewBox="0 0 120 120" class="w-full h-full">
+                        <circle cx="60" cy="60" r="54" fill="rgba(52, 211, 153, 0.14)" stroke="#6ee7b7" stroke-width="1.5"/>
+                        <!-- Zimní kabát s kožíškem -->
+                        <path d="M26 108 C30 78, 90 78, 94 108 Z" fill="#334155"/>
+                        <path d="M40 82 Q60 94 80 82" fill="none" stroke="#cbd5e1" stroke-width="6" stroke-linecap="round"/>
+                        <path d="M54 88 L66 88 L64 108 L56 108 Z" fill="#b91c1c"/>
+                        <!-- Hlava a blonďaté vlasy -->
+                        <rect x="43" y="36" width="34" height="40" rx="15" fill="#fed7aa"/>
+                        <path d="M40 48 C38 25, 82 25, 80 48 C76 36, 48 34, 40 48 Z" fill="#eab308"/>
+                        <!-- Oči a úsměv -->
+                        <circle cx="53" cy="54" r="2.3" fill="#78350f"/>
+                        <circle cx="67" cy="54" r="2.3" fill="#78350f"/>
+                        <path d="M54 65 Q60 69 66 65" fill="none" stroke="#9a3412" stroke-width="2" stroke-linecap="round"/>
+                    </svg>`
+            },
+            {
+                id: 'sven',
+                name: 'Sven',
+                role: 'Věrný sob se srdcem ze zlata',
+                category: 'companions',
+                element: 'Věrnost a rychlost',
+                elementIcon: '🥕',
+                accentColor: '#fb923c',
+                quote: '„*Spokojené sobí frknutí a nadšené vrtění ocasem*“',
+                description: 'Kristoffův nejlepší přítel od dětství. Rozumí lidské řeči, miluje křupavé mrkve a pro své přátele poběží i na konec světa.',
+                stats: { magie: 20, odvaha: 88, humor: 92, sila: 95 },
+                powerName: 'Sobí trysk & Mrkvová hostina',
+                powerIcon: '🥕',
+                powerEffect: 'hearts',
+                powerMessage: 'Sven nadšeně poskočil radostí! 🦌🥕',
+                svg: `
+                    <svg viewBox="0 0 120 120" class="w-full h-full">
+                        <circle cx="60" cy="60" r="54" fill="rgba(251, 146, 60, 0.15)" stroke="#fdba74" stroke-width="1.5"/>
+                        <!-- Parohy -->
+                        <path d="M46 38 L34 18 M39 26 L30 26 M42 31 L46 21" stroke="#fde68a" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M74 38 L86 18 M81 26 L90 26 M78 31 L74 21" stroke="#fde68a" stroke-width="3" stroke-linecap="round"/>
+                        <!-- Uši -->
+                        <ellipse cx="36" cy="46" rx="8" ry="4" transform="rotate(-20 36 46)" fill="#78350f"/>
+                        <ellipse cx="84" cy="46" rx="8" ry="4" transform="rotate(20 84 46)" fill="#78350f"/>
+                        <!-- Krk a srst -->
+                        <path d="M40 108 L44 74 L76 74 L80 108 Z" fill="#57534e"/>
+                        <path d="M46 74 L60 92 L74 74 Z" fill="#e7e5e4"/>
+                        <!-- Hlava a čenich -->
+                        <ellipse cx="60" cy="56" rx="17" ry="22" fill="#78350f"/>
+                        <ellipse cx="60" cy="68" rx="14" ry="12" fill="#d6d3d1"/>
+                        <!-- Červený nos a oči -->
+                        <ellipse cx="60" cy="63" rx="6" ry="4" fill="#be123c"/>
+                        <circle cx="52" cy="50" r="2.5" fill="#0f172a"/>
+                        <circle cx="68" cy="50" r="2.5" fill="#0f172a"/>
+                        <path d="M54 73 Q60 77 66 73" fill="none" stroke="#44403c" stroke-width="2" stroke-linecap="round"/>
+                    </svg>`
+            },
+            {
+                id: 'bruni',
+                name: 'Bruni',
+                role: 'Ohnivý duch Začarovaného lesa',
+                category: 'spirits',
+                element: 'Oheň a zvědavost',
+                elementIcon: '🔥',
+                accentColor: '#f97316',
+                quote: '„*Roztomilé zasyčení a jiskřička modrého plamínku*“',
+                description: 'Malý modrý mlok, který je ztělesněním ohnivého ducha. Když se rozčílí, vzplane jasným ohněm, ale nejraději mlsá Elsiny sněhové vločky.',
+                stats: { magie: 92, odvaha: 80, humor: 95, sila: 70 },
+                powerName: 'Modrý plamínek radosti',
+                powerIcon: '🔥',
+                powerEffect: 'fire',
+                powerMessage: 'Magický oheň zahřál celý Začarovaný les! 🔥✨',
+                svg: `
+                    <svg viewBox="0 0 120 120" class="w-full h-full">
+                        <circle cx="60" cy="60" r="54" fill="rgba(249, 115, 22, 0.16)" stroke="#fb923c" stroke-width="1.5"/>
+                        <!-- Plamínky kolem -->
+                        <path d="M60 16 C66 26, 70 30, 60 36 C50 30, 54 26, 60 16 Z" fill="#38bdf8"/>
+                        <path d="M32 42 C36 48, 38 51, 32 55 C26 51, 28 48, 32 42 Z" fill="#f97316"/>
+                        <path d="M88 42 C92 48, 94 51, 88 55 C82 51, 84 48, 88 42 Z" fill="#f97316"/>
+                        <!-- Tělíčko mloka -->
+                        <path d="M44 96 C44 74, 76 74, 76 96 Z" fill="#0284c7"/>
+                        <!-- Hlava -->
+                        <ellipse cx="60" cy="64" rx="22" ry="17" fill="#38bdf8"/>
+                        <!-- Velké roztomilé oči -->
+                        <circle cx="50" cy="61" r="6" fill="#0f172a"/>
+                        <circle cx="70" cy="61" r="6" fill="#0f172a"/>
+                        <circle cx="48" cy="59" r="2.2" fill="#ffffff"/>
+                        <circle cx="68" cy="59" r="2.2" fill="#ffffff"/>
+                        <!-- Roztomilý úsměv -->
+                        <path d="M55 71 Q60 75 65 71" fill="none" stroke="#0c4a6e" stroke-width="2" stroke-linecap="round"/>
+                    </svg>`
+            },
+            {
+                id: 'nokk',
+                name: 'Nokk',
+                role: 'Mystický vodní duch Temného moře',
+                category: 'spirits',
+                element: 'Voda a bouře',
+                elementIcon: '🌊',
+                accentColor: '#22d3ee',
+                quote: '„*Burácení příboje a tichý cval po hladině oceánu*“',
+                description: 'Ušlechtilý duch vody v podobě křišťálového hřebce. Prověřuje odvahu každého, kdo chce překročit Temné moře, a těm hodným je věrným ořem.',
+                stats: { magie: 96, odvaha: 95, humor: 40, sila: 98 },
+                powerName: 'Přílivová vlna krystalů',
+                powerIcon: '🌊',
+                powerEffect: 'frost',
+                powerMessage: 'Křišťálové vlny oceánu se zvedly na tvou počest! 🌊❄️',
+                svg: `
+                    <svg viewBox="0 0 120 120" class="w-full h-full">
+                        <circle cx="60" cy="60" r="54" fill="rgba(34, 211, 238, 0.16)" stroke="#22d3ee" stroke-width="1.5"/>
+                        <!-- Vodní hříva -->
+                        <path d="M62 24 C82 28, 92 52, 86 84 C78 68, 74 52, 66 42 Z" fill="#67e8f9" opacity="0.8"/>
+                        <!-- Krk a hlava koně -->
+                        <path d="M44 102 L48 54 L34 62 L32 52 L54 32 L68 38 L74 102 Z" fill="#06b6d4"/>
+                        <path d="M54 32 L50 20 L59 30 Z" fill="#a5f3fc"/>
+                        <!-- Zářící oko -->
+                        <circle cx="51" cy="44" r="2.8" fill="#ffffff"/>
+                        <!-- Vlnky dole -->
+                        <path d="M24 98 Q42 90 60 98 T96 98" fill="none" stroke="#cffafe" stroke-width="2.5" stroke-linecap="round"/>
+                    </svg>`
+            }
+        ];
+
+        /**
+         * OTÁZKY OSOBNOSTNÍHO KVÍZU (5 otázek)
+         */
+        const QUIZ_QUESTIONS = [
+            {
+                question: '1. Jaké počasí ti dokáže nejvíce zvednout náladu?',
+                options: [
+                    { text: 'Třpytivá sněhová vánice a mrazivé ráno', points: { elsa: 3, nokk: 1 } },
+                    { text: 'Slunečný letní den na rozkvetlé louce', points: { olaf: 3, anna: 1 } },
+                    { text: 'Svěží horský vzduch po dešti v lese', points: { kristoff: 2, sven: 2 } },
+                    { text: 'Bouřka nad mořem nebo praskání ohně v krbu', points: { bruni: 2, nokk: 2 } }
+                ]
+            },
+            {
+                question: '2. Jak reaguješ, když se před tebou objeví nečekaná překážka?',
+                options: [
+                    { text: 'Skočím do toho po hlavě s odvahou a srdcem na dlani', points: { anna: 3, sven: 1 } },
+                    { text: 'Soustředím se a využiji svou vnitřní sílu i nadání', points: { elsa: 3, nokk: 1 } },
+                    { text: 'Vymyslím praktický plán a spolehlivě ho dotáhnu do konce', points: { kristoff: 3, sven: 1 } },
+                    { text: 'Zasměji se tomu a najdu v situaci něco zábavného', points: { olaf: 2, bruni: 2 } }
+                ]
+            },
+            {
+                question: '3. Jak vypadá tvůj ideální víkend v Arendelle?',
+                options: [
+                    { text: 'Výprava do hor se skvělým parťákem a svačinou', points: { kristoff: 2, sven: 3 } },
+                    { text: 'Oslava na zámku plná smíchu, čokolády a přátel', points: { anna: 3, olaf: 1 } },
+                    { text: 'Klidný čas v přírodě, kde mohu objevovat nová tajemství', points: { elsa: 2, nokk: 2 } },
+                    { text: 'Hravé dovádění a mlsání sladkých dobrot', points: { bruni: 3, olaf: 1 } }
+                ]
+            },
+            {
+                question: '4. Který magický živel k tobě nejvíce promlouvá?',
+                options: [
+                    { text: 'Křišťálový led a sníh', points: { elsa: 3 } },
+                    { text: 'Nespoutaná voda a oceán', points: { nokk: 3, kristoff: 1 } },
+                    { text: 'Hřejivý a jiskřivý oheň', points: { bruni: 3, anna: 1 } },
+                    { text: 'Živá země, lesy a teplé slunce', points: { sven: 2, olaf: 2 } }
+                ]
+            },
+            {
+                question: '5. Co na tobě tvoji přátelé nejvíce oceňují?',
+                options: [
+                    { text: 'Mou bezmeznou věrnost a ochotu vždy pomoci', points: { anna: 2, sven: 2, kristoff: 1 } },
+                    { text: 'Můj optimismus a schopnost rozesmát každého v místnosti', points: { olaf: 3, bruni: 1 } },
+                    { text: 'Mou moudrost, klid a odhodlání chránit druhé', points: { elsa: 3, nokk: 1 } },
+                    { text: 'Mou upřímnost a to, že se na mě dá vždy spolehnout', points: { kristoff: 3, sven: 1 } }
+                ]
+            }
+        ];
+
+        /**
+         * STAV APLIKACE
+         */
+        let state = {
+            activeTab: 'gallery',
+            filter: 'all',
+            selectedHeroId: null,
+            soundEnabled: true,
+            quizStep: 0,
+            quizScores: {},
+            quizWinnerId: null
+        };
+
+        /**
+         * WEB AUDIO API - JEMNÉ KOUZELNÉ ZVUKY BEZ EXTERNÍCH SOUBORŮ
+         */
+        let audioCtx = null;
+
+        function playMagicSound(type = 'select') {
+            if (!state.soundEnabled) return;
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const now = audioCtx.currentTime;
+                const notes = type === 'power'
+                    ? [523.25, 659.25, 783.99, 1046.50, 1318.51] // C5, E5, G5, C6, E6
+                    : type === 'quiz'
+                    ? [440, 554.37, 659.25, 880]
+                    : [587.33, 739.99, 880, 1174.66]; // D5, F#5, A5, D6
+
+                notes.forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.065);
+
+                    gain.gain.setValueAtTime(0.001, now + idx * 0.065);
+                    gain.gain.exponentialRampToValueAtTime(0.08, now + idx * 0.065 + 0.03);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.065 + 0.55);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start(now + idx * 0.065);
+                    osc.stop(now + idx * 0.065 + 0.6);
+                });
+            } catch (e) {
+                // Ignorujeme chybu audia, pokud prohlížeč blokuje autoplay
+            }
+        }
+
+        /**
+         * PLÁTNO 1: PADÁJÍCÍ SNĚHOVÉ VLOČKY NA POZADÍ
+         */
+        const snowCanvas = document.getElementById('snow-canvas');
+        const snowCtx = snowCanvas.getContext('2d');
+        let snowflakes = [];
+
+        function resizeCanvases() {
+            snowCanvas.width = window.innerWidth;
+            snowCanvas.height = window.innerHeight;
+            fxCanvas.width = window.innerWidth;
+            fxCanvas.height = window.innerHeight;
+        }
+
+        function initSnow() {
+            snowflakes = [];
+            const count = Math.min(110, Math.floor(window.innerWidth / 12));
+            for (let i = 0; i < count; i++) {
+                snowflakes.push({
+                    x: Math.random() * snowCanvas.width,
+                    y: Math.random() * snowCanvas.height,
+                    radius: Math.random() * 2.8 + 1,
+                    speedY: Math.random() * 1.1 + 0.4,
+                    speedX: Math.random() * 0.6 - 0.3,
+                    opacity: Math.random() * 0.65 + 0.25
+                });
+            }
+        }
+
+        function updateSnow() {
+            snowCtx.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
+            snowflakes.forEach(flake => {
+                flake.y += flake.speedY;
+                flake.x += flake.speedX + Math.sin(flake.y * 0.015) * 0.3;
+
+                if (flake.y > snowCanvas.height) {
+                    flake.y = -5;
+                    flake.x = Math.random() * snowCanvas.width;
+                }
+                if (flake.x > snowCanvas.width) flake.x = 0;
+                if (flake.x < 0) flake.x = snowCanvas.width;
+
+                snowCtx.beginPath();
+                snowCtx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+                snowCtx.fillStyle = `rgba(224, 242, 254, ${flake.opacity})`;
+                snowCtx.fill();
+            });
+        }
+
+        /**
+         * PLÁTNO 2: INTERAKTIVNÍ ČÁSTICE (KURZOROVÁ STOPA + MAGICKÉ EXPLOZE)
+         */
+        const fxCanvas = document.getElementById('fx-canvas');
+        const fxCtx = fxCanvas.getContext('2d');
+        let magicParticles = [];
+
+        function spawnMagicBurst(x, y, color = '#7dd3fc', count = 28) {
+            for (let i = 0; i < count; i++) {
+                const angle = (Math.PI * 2 * i) / count + Math.random() * 0.3;
+                const speed = Math.random() * 4.5 + 1.5;
+                magicParticles.push({
+                    x,
+                    y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: Math.random() * 4 + 2,
+                    alpha: 1,
+                    color,
+                    decay: Math.random() * 0.02 + 0.015
+                });
+            }
+        }
+
+        function spawnTrailParticle(x, y) {
+            if (magicParticles.length > 260) return;
+            magicParticles.push({
+                x,
+                y,
+                vx: (Math.random() - 0.5) * 0.8,
+                vy: Math.random() * 1.2 + 0.3,
+                size: Math.random() * 2.5 + 1,
+                alpha: 0.85,
+                color: '#bae6fd',
+                decay: 0.025
+            });
+        }
+
+        function updateMagicParticles() {
+            fxCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
+            for (let i = magicParticles.length - 1; i >= 0; i--) {
+                const p = magicParticles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= p.decay;
+
+                if (p.alpha <= 0) {
+                    magicParticles.splice(i, 1);
+                    continue;
+                }
+
+                fxCtx.save();
+                fxCtx.globalAlpha = p.alpha;
+                fxCtx.fillStyle = p.color;
+                fxCtx.shadowBlur = 10;
+                fxCtx.shadowColor = p.color;
+                fxCtx.beginPath();
+                fxCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                fxCtx.fill();
+                fxCtx.restore();
+            }
+        }
+
+        function animationLoop() {
+            updateSnow();
+            updateMagicParticles();
+            requestAnimationFrame(animationLoop);
+        }
+
+        /**
+         * VYKRESLENÍ KARET POSTAV V GALERII
+         */
+        function renderCharactersGrid() {
+            const grid = document.getElementById('characters-grid');
+            const filtered = state.filter === 'all'
+                ? CHARACTERS
+                : CHARACTERS.filter(c => c.category === state.filter);
+
+            grid.innerHTML = filtered.map(char => {
+                const isSelected = state.selectedHeroId === char.id;
+                return `
+                <article class="frost-card rounded-3xl p-6 flex flex-col justify-between ${isSelected ? 'selected-hero-card' : ''}">
+                    <div>
+                        <!-- Horní odznak živlu -->
+                        <div class="flex items-center justify-between gap-2 mb-4">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/70 border border-sky-400/25 text-xs font-medium text-sky-200">
+                                <span>${char.elementIcon}</span>
+                                <span>${char.element}</span>
+                            </span>
+                            ${isSelected ? '<span class="px-2.5 py-1 rounded-full bg-sky-400/25 border border-sky-300 text-sky-100 text-xs font-bold">✓ Vybrán</span>' : ''}
+                        </div>
+
+                        <!-- Vektorový portrét -->
+                        <div class="w-32 h-32 mx-auto my-3 rounded-2xl bg-slate-950/60 border border-sky-300/30 p-2.5 shadow-lg animate-float">
+                            ${char.svg}
+                        </div>
+
+                        <!-- Jméno a titul -->
+                        <div class="text-center mb-4">
+                            <h3 class="text-2xl font-bold text-white tracking-wide">${char.name}</h3>
+                            <p class="text-sky-300 text-xs sm:text-sm font-medium mt-0.5">${char.role}</p>
+                        </div>
+
+                        <!-- Popis a citát -->
+                        <p class="text-sky-100/80 text-xs sm:text-sm leading-relaxed mb-4 text-center">
+                            ${char.description}
+                        </p>
+                        <blockquote class="bg-slate-950/45 border-l-2 border-sky-400 px-3.5 py-2.5 rounded-r-xl text-xs italic text-sky-200/90 mb-5">
+                            ${char.quote}
+                        </blockquote>
+
+                        <!-- Statistiky postavy -->
+                        <div class="space-y-2.5 mb-6">
+                            ${renderStatBar('Magie', char.stats.magie, 'from-cyan-400 to-blue-500')}
+                            ${renderStatBar('Odvaha', char.stats.odvaha, 'from-pink-400 to-rose-500')}
+                            ${renderStatBar('Humor', char.stats.humor, 'from-amber-300 to-orange-500')}
+                            ${renderStatBar('Síla', char.stats.sila, 'from-emerald-400 to-teal-500')}
+                        </div>
+                    </div>
+
+                    <!-- Tlačítko výběru -->
+                    <button type="button" onclick="selectHero('${char.id}', event)" class="w-full magic-btn py-3 px-4 rounded-xl font-bold text-white text-sm flex items-center justify-center gap-2 cursor-pointer">
+                        <span>${isSelected ? '✨' : '❄️'}</span>
+                        <span>${isSelected ? 'Tvůj aktivní hrdina' : 'Vybrat jako svého hrdinu'}</span>
+                    </button>
+                </article>
+                `;
+            }).join('');
+        }
+
+        function renderStatBar(label, value, gradientClass) {
+            return `
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-sky-200/85 font-medium">${label}</span>
+                        <span class="text-white font-semibold">${value} %</span>
+                    </div>
+                    <div class="w-full h-2 bg-slate-950/80 rounded-full overflow-hidden border border-sky-400/15">
+                        <div class="h-full bg-gradient-to-r ${gradientClass} rounded-full transition-all duration-700" style="width: ${value}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * VÝBĚR HRDINY A ZOBRAZENÍ BANNERU SE SPECIÁLNÍ SCHOPNOSTÍ
+         */
+        function selectHero(heroId, event) {
+            const hero = CHARACTERS.find(c => c.id === heroId);
+            if (!hero) return;
+
+            state.selectedHeroId = heroId;
+            playMagicSound('select');
+
+            // Částicový efekt v místě kliknutí nebo uprostřed
+            const burstX = event ? event.clientX : window.innerWidth / 2;
+            const burstY = event ? event.clientY : window.innerHeight / 3;
+            spawnMagicBurst(burstX, burstY, hero.accentColor, 36);
+
+            // Aktualizace banneru
+            const banner = document.getElementById('selected-hero-banner');
+            document.getElementById('banner-avatar').innerHTML = hero.svg;
+            document.getElementById('banner-name').textContent = hero.name;
+            document.getElementById('banner-title').textContent = hero.role;
+            document.getElementById('banner-quote').textContent = hero.quote;
+            document.getElementById('power-icon').textContent = hero.powerIcon;
+            document.getElementById('power-btn-text').textContent = hero.powerName;
+            document.getElementById('power-feedback').textContent = 'Klikni a sešli kouzlo!';
+
+            banner.classList.remove('hidden');
+            banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            renderCharactersGrid();
+        }
+
+        /**
+         * AKTIVACE SPECIÁLNÍ MAGICKÉ SCHOPNOSTI HRDINY
+         */
+        function triggerSpecialPower() {
+            const hero = CHARACTERS.find(c => c.id === state.selectedHeroId);
+            if (!hero) return;
+
+            playMagicSound('power');
+            document.getElementById('power-feedback').textContent = hero.powerMessage;
+
+            // Výbuch částic uprostřed obrazovky
+            spawnMagicBurst(window.innerWidth * 0.5, window.innerHeight * 0.45, hero.accentColor, 55);
+            spawnMagicBurst(window.innerWidth * 0.25, window.innerHeight * 0.35, '#ffffff', 30);
+            spawnMagicBurst(window.innerWidth * 0.75, window.innerHeight * 0.35, '#ffffff', 30);
+
+            // Dočasný efekt prostředí podle živlu postavy
+            const frostEl = document.getElementById('frost-overlay');
+            const sunEl = document.getElementById('sun-overlay');
+            const fireEl = document.getElementById('fire-overlay');
+
+            frostEl.classList.remove('active');
+            sunEl.classList.remove('active');
+            fireEl.classList.remove('active');
+
+            if (hero.powerEffect === 'frost') {
+                frostEl.classList.add('active');
+                setTimeout(() => frostEl.classList.remove('active'), 3200);
+            } else if (hero.powerEffect === 'sun') {
+                sunEl.classList.add('active');
+                setTimeout(() => sunEl.classList.remove('active'), 3200);
+            } else if (hero.powerEffect === 'fire') {
+                fireEl.classList.add('active');
+                setTimeout(() => fireEl.classList.remove('active'), 3200);
+            } else {
+                frostEl.classList.add('active');
+                setTimeout(() => frostEl.classList.remove('active'), 2500);
+            }
+        }
+
+        /**
+         * LOGIKA OSOBNOSTNÍHO KVÍZU
+         */
+        function resetQuiz() {
+            state.quizStep = 0;
+            state.quizScores = {};
+            state.quizWinnerId = null;
+            document.getElementById('quiz-question-container').classList.remove('hidden');
+            document.getElementById('quiz-result-container').classList.add('hidden');
+            renderQuizQuestion();
+        }
+
+        function renderQuizQuestion() {
+            const q = QUIZ_QUESTIONS[state.quizStep];
+            const total = QUIZ_QUESTIONS.length;
+
+            document.getElementById('quiz-step-badge').textContent = `Otázka ${state.quizStep + 1} z ${total}`;
+            document.getElementById('quiz-progress-bar').style.width = `${((state.quizStep + 1) / total) * 100}%`;
+            document.getElementById('quiz-question-text').textContent = q.question;
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = q.options.map((opt, idx) => `
+                <button type="button" onclick="answerQuiz(${idx}, event)" class="w-full text-left p-4 sm:p-5 rounded-2xl bg-slate-900/65 hover:bg-sky-500/20 border border-sky-400/25 hover:border-sky-300 text-sky-100 hover:text-white transition-all duration-200 flex items-center gap-3.5 group cursor-pointer">
+                    <span class="w-8 h-8 rounded-full bg-sky-950 border border-sky-400/40 flex items-center justify-center text-xs font-bold text-sky-300 group-hover:bg-sky-400 group-hover:text-slate-950 transition shrink-0">
+                        ${String.fromCharCode(65 + idx)}
+                    </span>
+                    <span class="text-sm sm:text-base font-medium">${opt.text}</span>
+                </button>
+            `).join('');
+        }
+
+        function answerQuiz(optionIndex, event) {
+            const q = QUIZ_QUESTIONS[state.quizStep];
+            const chosen = q.options[optionIndex];
+
+            // Přičtení bodů
+            for (const [charId, pts] of Object.entries(chosen.points)) {
+                state.quizScores[charId] = (state.quizScores[charId] || 0) + pts;
+            }
+
+            playMagicSound('select');
+            if (event) {
+                spawnMagicBurst(event.clientX, event.clientY, '#7dd3fc', 18);
+            }
+
+            state.quizStep++;
+            if (state.quizStep < QUIZ_QUESTIONS.length) {
+                renderQuizQuestion();
+            } else {
+                showQuizResult();
+            }
+        }
+
+        function showQuizResult() {
+            // Najdi postavu s nejvyšším skóre
+            let bestId = 'elsa';
+            let maxPts = -1;
+            for (const [charId, pts] of Object.entries(state.quizScores)) {
+                if (pts > maxPts) {
+                    maxPts = pts;
+                    bestId = charId;
+                }
+            }
+
+            state.quizWinnerId = bestId;
+            const winner = CHARACTERS.find(c => c.id === bestId);
+
+            playMagicSound('power');
+            spawnMagicBurst(window.innerWidth / 2, window.innerHeight / 2, winner.accentColor, 50);
+
+            document.getElementById('quiz-question-container').classList.add('hidden');
+            const resContainer = document.getElementById('quiz-result-container');
+            resContainer.classList.remove('hidden');
+
+            document.getElementById('quiz-result-avatar').innerHTML = winner.svg;
+            document.getElementById('quiz-result-name').textContent = winner.name;
+            document.getElementById('quiz-result-role').textContent = winner.role;
+            document.getElementById('quiz-result-desc').textContent = winner.description;
+        }
+
+        /**
+         * PŘEPÍNÁNÍ TABŮ A UDÁLOSTI
+         */
+        function switchTab(tabName) {
+            state.activeTab = tabName;
+            const tabGallery = document.getElementById('tab-gallery');
+            const tabQuiz = document.getElementById('tab-quiz');
+            const viewGallery = document.getElementById('view-gallery');
+            const viewQuiz = document.getElementById('view-quiz');
+
+            if (tabName === 'gallery') {
+                tabGallery.className = 'px-5 sm:px-7 py-3 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 flex items-center gap-2 bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/30 cursor-pointer';
+                tabQuiz.className = 'px-5 sm:px-7 py-3 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 flex items-center gap-2 text-sky-200 hover:text-white hover:bg-white/5 cursor-pointer';
+                viewGallery.classList.remove('hidden');
+                viewQuiz.classList.add('hidden');
+            } else {
+                tabQuiz.className = 'px-5 sm:px-7 py-3 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 flex items-center gap-2 bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/30 cursor-pointer';
+                tabGallery.className = 'px-5 sm:px-7 py-3 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 flex items-center gap-2 text-sky-200 hover:text-white hover:bg-white/5 cursor-pointer';
+                viewQuiz.classList.remove('hidden');
+                viewGallery.classList.add('hidden');
+                if (state.quizStep === 0 && !state.quizWinnerId) {
+                    renderQuizQuestion();
+                }
+            }
+        }
+
+        // Inicializace po načtení okna
+        window.onload = function () {
+            resizeCanvases();
+            initSnow();
+            animationLoop();
+            renderCharactersGrid();
+
+            window.addEventListener('resize', () => {
+                resizeCanvases();
+                initSnow();
+            });
+
+            // Sněhová stopa za kurzorem a dotykem
+            window.addEventListener('mousemove', (e) => {
+                if (Math.random() > 0.35) {
+                    spawnTrailParticle(e.clientX, e.clientY);
+                }
+            });
+
+            window.addEventListener('touchmove', (e) => {
+                if (e.touches && e.touches[0]) {
+                    spawnTrailParticle(e.touches[0].clientX, e.touches[0].clientY);
+                }
+            }, { passive: true });
+
+            // Přepínače karet
+            document.getElementById('tab-gallery').addEventListener('click', () => switchTab('gallery'));
+            document.getElementById('tab-quiz').addEventListener('click', () => switchTab('quiz'));
+
+            // Filtry v galerii
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => {
+                        b.className = 'filter-btn px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-slate-900/50 border border-sky-400/20 text-sky-200 hover:border-sky-300/60 transition cursor-pointer';
+                    });
+                    btn.className = 'filter-btn active px-4 py-2 rounded-full text-xs sm:text-sm font-semibold bg-sky-400/25 border border-sky-300 text-white transition cursor-pointer';
+                    state.filter = btn.dataset.filter;
+                    renderCharactersGrid();
+                });
+            });
+
+            // Speciální schopnost hrdiny
+            document.getElementById('special-power-btn').addEventListener('click', triggerSpecialPower);
+
+            // Tlačítka ve výsledku kvízu
+            document.getElementById('quiz-claim-btn').addEventListener('click', (e) => {
+                if (state.quizWinnerId) {
+                    selectHero(state.quizWinnerId, e);
+                    switchTab('gallery');
+                }
+            });
+            document.getElementById('quiz-restart-btn').addEventListener('click', resetQuiz);
+
+            // Přepínač zvuku
+            document.getElementById('sound-toggle').addEventListener('click', () => {
+                state.soundEnabled = !state.soundEnabled;
+                document.getElementById('sound-icon').textContent = state.soundEnabled ? '🔊' : '🔇';
+                document.getElementById('sound-label').textContent = state.soundEnabled ? 'Zvuk zapnut' : 'Zvuk vypnut';
+                if (state.soundEnabled) playMagicSound('select');
+            });
+        };
+    </script>
+</body>
+</html>
